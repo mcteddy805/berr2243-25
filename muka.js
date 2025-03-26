@@ -5,13 +5,15 @@ const client = new MongoClient(uri);
 
 async function run() {
     try {
+        const startTime = Date.now();
         await client.connect();
-        console.log("Connected to MongoDB!");
+        const endTime = Date.now();
+        console.log(`Connected to MongoDB in ${endTime - startTime} ms`);
 
         const database = client.db("testDB");
         const collection = database.collection("users");
 
-        const doc = { name: "mat sabu", age: 30 };
+        const doc = { name: "aiman", age: 21 };
         const result = await collection.insertOne(doc);
 
         console.log("Inserted document ID:", result.insertedId);
