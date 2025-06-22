@@ -1,0 +1,17 @@
+[
+  {
+    "name": "John Doe",
+    "rating": 4.4,
+    "available": true
+  },
+  {
+    "name": "Jane Smith",
+    "rating": 4.8,
+    "available": true
+  },
+  {
+    "name": "Ali Ahmad",
+    "rating": 4.2,
+    "available": false
+  }
+]

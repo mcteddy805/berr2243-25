@@ -1,73 +1,41 @@
-const { MongoClient } = require("mongodb");
-// Define array of driver objects
-const drivers = [
-    {   
-        name: "aiman",
-        VehicleType:"Sedan", 
-        rating: 4.6,
-        available: true },
-    {   
-            name: "amir",
-            VehicleType:"Sedan", 
-            rating: 1.0,
-            available: true },
-    {   
-                name: "adam",
-                VehicleType:"Sedan", 
-                rating: 5.0,
-                available: false},
-  ];
-  
-  //  Display each driver name
-  drivers.forEach(driver => {
-    console.log("Driver:", driver.name);
-  });
-  
-  // Add a new driver
-  drivers.push(
-    {   
-    name: "johan",
-    VehicleType:"SUV", 
-    rating: 4.9,
-    available: true},
-    );
-  
-  console.log("\nUpdated Drivers:");
-  console.log(drivers);
-  
-    const uri = "mongodb://localhost:27017"; // change if using MongoDB Atlas
-    const client = new MongoClient(uri);
+const { MongoClient } = require('mongodb');
+const fs = require('fs');
+
+const uri = "mongodb://localhost:27017"; // use this for local MongoDB
+const client = new MongoClient(uri);
 
 async function main() {
-  try {
-    await client.connect();
-    const db = client.db("driverDB"); // database name
-    const collection = db.collection("drivers"); // collection name
+  await client.connect();
+  const db = client.db('transport');
+  const driversCollection = db.collection('drivers');
 
-    // Insert all drivers into MongoDB
-    const result = await collection.insertMany(drivers);
-    console.log("Drivers inserted:", result.insertedCount);
-       
-    // Find drivers with rating >= 4.5
-        const topDrivers = await collection.find({ rating: { $gte: 4.5 } }).toArray();
-        console.log("Top Drivers:", topDrivers);
-    
-        // Update John Doe's rating
-        await collection.updateOne(
-          { name: "johan" },
-          { $inc: { rating: 0.1 } }
-        );
-        console.log("Updated johan's rating");
+  // Load data
+  let drivers = JSON.parse(fs.readFileSync('drivers.json'));
 
-        // Delete unavailable drivers
-        await collection.deleteMany({ available: false });
-        console.log("Deleted unavailable drivers");
-    
-  } catch (err) {
-    console.error("Error inserting drivers:", err);
-  } finally {
-    await client.close();
-  }
+  // Print driver names
+  console.log("Driver Names:");
+  drivers.forEach(driver => console.log(driver.name));
+
+  // Add new driver
+  drivers.push({ name: "Sara Lin", rating: 4.6, available: true });
+
+  // Insert all
+  await driversCollection.insertMany(drivers);
+  console.log("Inserted drivers.");
+
+  // Find top drivers
+  const topDrivers = await driversCollection.find({ rating: { $gte: 4.5 } }).toArray();
+  console.log("Top-rated drivers:", topDrivers);
+
+  // Update rating
+  await driversCollection.updateOne({ name: "John Doe" }, { $inc: { rating: 0.1 } });
+  console.log("Updated John Doe’s rating.");
+
+  // Delete unavailable
+  await driversCollection.deleteMany({ available: false });
+  console.log("Deleted unavailable drivers.");
+
+  await client.close();
 }
 
-main();
+main().catch(console.error);
